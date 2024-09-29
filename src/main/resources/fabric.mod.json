@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"id": "client-command-extensions",
+	"version": "1.0",
+	"name": "Client Command Extensions",
+	"description": "A Kotlin library that adds convenience to creating client commands.",
+	"authors": [
+		"unidok"
+	],
+	"license": "MIT",
+	"environment": "*",
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": ">=1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
