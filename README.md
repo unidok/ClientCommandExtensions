@@ -1,6 +1,4 @@
-# Releases
-- Releases: https://github.com/unidok/ClientCommandExtensions/tree/master/releases
-- Last release: https://github.com/unidok/ClientCommandExtensions/blob/master/releases/ClientCommandExtensions-1.0.jar
+# [Releases](https://github.com/unidok/ClientCommandExtensions/releases)
 
 # Example
 ```kt
