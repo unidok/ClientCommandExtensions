@@ -7,8 +7,12 @@
 	"authors": [
 		"unidok"
 	],
+	"contact": {
+		"sources": "https://github.com/unidok/ClientCommandExtensions",
+		"issues": "https://github.com/unidok/ClientCommandExtensions/issues"
+	},
 	"license": "MIT",
-	"environment": "*",
+	"environment": "client",
 	"depends": {
 		"fabricloader": ">=0.15.0",
 		"minecraft": ">=1.20.4",
