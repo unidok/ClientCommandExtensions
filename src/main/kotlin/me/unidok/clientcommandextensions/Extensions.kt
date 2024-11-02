@@ -1,13 +1,11 @@
-package com.unidok.clientcommandextensions
+package me.unidok.clientcommandextensions
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.Message
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
-import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import com.mojang.brigadier.suggestion.Suggestions
@@ -19,7 +17,7 @@ fun ArgumentBuilder<FabricClientCommandSource, *>.literalBuilder(
     name: String,
     body: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
 ): LiteralArgumentBuilder<FabricClientCommandSource> {
-    val builder = literal<FabricClientCommandSource>(name)
+    val builder = LiteralArgumentBuilder.literal<FabricClientCommandSource>(name)
     body(builder)
     return builder
 }
@@ -38,7 +36,7 @@ fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argumentBuilder(
     argumentType: ArgumentType<T>,
     body: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
 ): RequiredArgumentBuilder<FabricClientCommandSource, T> {
-    val builder = argument<FabricClientCommandSource, T>(name, argumentType)
+    val builder = RequiredArgumentBuilder.argument<FabricClientCommandSource, T>(name, argumentType)
     body(builder)
     return builder
 }
@@ -53,18 +51,17 @@ fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argument(
 
 
 
-fun ArgumentBuilder<FabricClientCommandSource, *>.execute(
+fun ArgumentBuilder<FabricClientCommandSource, *>.runs(
     body: CommandContext<FabricClientCommandSource>.() -> Unit
-): ArgumentBuilder<FabricClientCommandSource, *> {
-    return executes { context ->
-        body(context)
-        return@executes Command.SINGLE_SUCCESS // 1
-    }
+) = executes { context ->
+    body(context)
+    return@executes Command.SINGLE_SUCCESS // 1
 }
 
 
 
-fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggest(match: Match, body: SuggestionsBuilder.() -> Unit) {
+
+fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggests(match: Match, body: SuggestionsBuilder.() -> Unit) {
     suggests(object : SuggestionProvider<FabricClientCommandSource> {
         override fun getSuggestions(
             context: CommandContext<FabricClientCommandSource>,
@@ -83,13 +80,13 @@ fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggest(matc
     })
 }
 
-fun RequiredArgumentBuilder<FabricClientCommandSource, *>.suggest(body: (CommandContext<FabricClientCommandSource>, SuggestionsBuilder) -> Unit) {
+fun RequiredArgumentBuilder<FabricClientCommandSource, *>.suggests(body: SuggestionsBuilder.() -> Unit) {
     suggests(object : SuggestionProvider<FabricClientCommandSource> {
         override fun getSuggestions(
             context: CommandContext<FabricClientCommandSource>,
             builder: SuggestionsBuilder
         ): CompletableFuture<Suggestions> {
-            body(context, builder)
+            body(builder)
             return builder.buildFuture()
         }
     })
@@ -105,4 +102,6 @@ fun SuggestionsBuilder.suggest(suggestions: Iterable<String>) {
 
 
 
-inline fun <reified T> CommandContext<*>.getArgument(name: String): T = getArgument<T>(name, T::class.java)
+inline fun <reified T> CommandContext<*>.getArgument(name: String): T {
+    return getArgument<T>(name, T::class.java)
+}

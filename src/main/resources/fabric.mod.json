@@ -1,18 +1,22 @@
 {
 	"schemaVersion": 1,
 	"id": "client-command-extensions",
-	"version": "1.0",
+	"version": "1.1",
 	"name": "Client Command Extensions",
 	"description": "A Kotlin library that adds convenience to creating client commands.",
 	"authors": [
 		"unidok"
 	],
+	"contact": {
+		"sources": "https://github.com/unidok/ClientCommandExtensions",
+		"issues": "https://github.com/unidok/ClientCommandExtensions/issues"
+	},
 	"license": "MIT",
-	"environment": "*",
+	"environment": "client",
 	"depends": {
 		"fabricloader": ">=0.15.0",
-		"minecraft": ">=1.20.4",
-		"java": ">=17",
+		"minecraft": ">=1.21",
+		"java": ">=21",
 		"fabric-api": "*"
 	},
 	"suggests": {
