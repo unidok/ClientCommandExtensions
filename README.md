@@ -3,23 +3,23 @@
 # Example
 ```kt
 // TestCommand.kt
-object TestCommand : ClientCommand("test") {
-    override fun initialize() {
-        literal("message") {
+object TestCommand : ClientCommand("test", "t") { // command 'test' and alias 't'
+    override fun build(command: LiteralArgumentBuilder<FabricClientCommandSource>) {
+        command.literal("message") {
             argument("msg", StringArgumentType.greedyString()) { // with argument
-                execute {
+                runs {
                     val argument = getArgument<String>("msg")
                     source.sendFeedback(Text.literal("/test message $argument"))
                 }
-                smartSuggest(Match.CONTAINS_IGNORE_CASE) { // smart suggest (by argument input)
-                    suggest("default message", "any message", "m e s s a g e")
+                smartSuggests(Match.CONTAINS_IGNORE_CASE) { // smart suggest (by argument input)
+                    suggest("suggestion")
                 }
             } 
-            execute {
+            runs {
                 source.sendFeedback(Text.literal("/test message"))
             }
         }
-        execute {
+        command.runs {
             source.sendFeedback(Text.literal("/test"))
         }
     }
