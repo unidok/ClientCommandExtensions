@@ -1,5 +1,3 @@
-# [Releases](https://github.com/unidok/ClientCommandExtensions/releases)
-
 # Example
 ```kt
 // TestCommand.kt
