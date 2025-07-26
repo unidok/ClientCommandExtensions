@@ -7,13 +7,10 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import com.mojang.brigadier.suggestion.SuggestionProvider
-import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
-import java.util.concurrent.CompletableFuture
 
-fun ArgumentBuilder<FabricClientCommandSource, *>.literalBuilder(
+fun literalBuilder(
     name: String,
     body: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
 ): LiteralArgumentBuilder<FabricClientCommandSource> {
@@ -31,7 +28,7 @@ fun ArgumentBuilder<FabricClientCommandSource, *>.literal(
 
 
 
-fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argumentBuilder(
+fun <T> argumentBuilder(
     name: String,
     argumentType: ArgumentType<T>,
     body: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
@@ -53,43 +50,33 @@ fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argument(
 
 fun ArgumentBuilder<FabricClientCommandSource, *>.runs(
     body: CommandContext<FabricClientCommandSource>.() -> Unit
-) = executes { context ->
+): ArgumentBuilder<FabricClientCommandSource, *> = executes { context ->
     body(context)
-    return@executes Command.SINGLE_SUCCESS // 1
+    Command.SINGLE_SUCCESS
 }
 
 
 
 
 fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggests(match: Match, body: SuggestionsBuilder.() -> Unit) {
-    suggests(object : SuggestionProvider<FabricClientCommandSource> {
-        override fun getSuggestions(
-            context: CommandContext<FabricClientCommandSource>,
-            builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> {
-            val newBuilder = object : SuggestionsBuilder(builder.input, builder.start) {
-                override fun suggest(text: String) =
-                    if (match.matches(text, remaining)) super.suggest(text) else this
+    suggests { context, builder ->
+        val newBuilder = object : SuggestionsBuilder(builder.input, builder.start) {
+            override fun suggest(text: String) =
+                if (match.matches(text, remaining)) super.suggest(text) else this
 
-                override fun suggest(text: String, tooltip: Message) =
-                    if (match.matches(text, remaining)) super.suggest(text, tooltip) else this
-            }
-            body(newBuilder)
-            return newBuilder.buildFuture()
+            override fun suggest(text: String, tooltip: Message) =
+                if (match.matches(text, remaining)) super.suggest(text, tooltip) else this
         }
-    })
+        body(newBuilder)
+        newBuilder.buildFuture()
+    }
 }
 
 fun RequiredArgumentBuilder<FabricClientCommandSource, *>.suggests(body: SuggestionsBuilder.() -> Unit) {
-    suggests(object : SuggestionProvider<FabricClientCommandSource> {
-        override fun getSuggestions(
-            context: CommandContext<FabricClientCommandSource>,
-            builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> {
-            body(builder)
-            return builder.buildFuture()
-        }
-    })
+    suggests { context, builder ->
+        body(builder)
+        builder.buildFuture()
+    }
 }
 
 fun SuggestionsBuilder.suggest(vararg suggestions: String) {
