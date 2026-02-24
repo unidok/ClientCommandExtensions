@@ -10,55 +10,54 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
-fun literalBuilder(
+inline fun buildLiteral(
     name: String,
-    body: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
-): LiteralArgumentBuilder<FabricClientCommandSource> {
-    val builder = LiteralArgumentBuilder.literal<FabricClientCommandSource>(name)
-    body(builder)
-    return builder
-}
+    builder: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
+): LiteralArgumentBuilder<FabricClientCommandSource> =
+    LiteralArgumentBuilder.literal<FabricClientCommandSource>(name).apply(builder)
 
-fun ArgumentBuilder<FabricClientCommandSource, *>.literal(
+inline fun ArgumentBuilder<FabricClientCommandSource, *>.literal(
     name: String,
-    body: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
+    builder: LiteralArgumentBuilder<FabricClientCommandSource>.() -> Unit
 ) {
-    then(literalBuilder(name, body))
+    then(buildLiteral(name, builder))
 }
 
 
 
-fun <T> argumentBuilder(
+inline fun <T> buildArgument(
     name: String,
     argumentType: ArgumentType<T>,
-    body: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
-): RequiredArgumentBuilder<FabricClientCommandSource, T> {
-    val builder = RequiredArgumentBuilder.argument<FabricClientCommandSource, T>(name, argumentType)
-    body(builder)
-    return builder
-}
+    builder: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
+): RequiredArgumentBuilder<FabricClientCommandSource, T> =
+    RequiredArgumentBuilder.argument<FabricClientCommandSource, T>(name, argumentType).apply(builder)
 
-fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argument(
+inline fun <T> ArgumentBuilder<FabricClientCommandSource, *>.argument(
     name: String,
     argumentType: ArgumentType<T>,
-    body: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
+    builder: RequiredArgumentBuilder<FabricClientCommandSource, T>.() -> Unit
 ) {
-    then(argumentBuilder(name, argumentType, body))
+    then(buildArgument(name, argumentType, builder))
 }
 
 
 
-fun ArgumentBuilder<FabricClientCommandSource, *>.runs(
-    body: CommandContext<FabricClientCommandSource>.() -> Unit
-): ArgumentBuilder<FabricClientCommandSource, *> = executes { context ->
-    body(context)
-    Command.SINGLE_SUCCESS
+inline fun ArgumentBuilder<FabricClientCommandSource, *>.runs(
+    crossinline builder: CommandContext<FabricClientCommandSource>.() -> Unit
+) {
+    executes { context ->
+        builder(context)
+        Command.SINGLE_SUCCESS
+    }
 }
 
 
 
 
-fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggests(match: Match, body: SuggestionsBuilder.() -> Unit) {
+inline fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggests(
+    match: Match,
+    crossinline builder: SuggestionsBuilder.() -> Unit
+) {
     suggests { context, builder ->
         val newBuilder = object : SuggestionsBuilder(builder.input, builder.start) {
             override fun suggest(text: String) =
@@ -67,14 +66,16 @@ fun RequiredArgumentBuilder<FabricClientCommandSource, String>.smartSuggests(mat
             override fun suggest(text: String, tooltip: Message) =
                 if (match.matches(text, remaining)) super.suggest(text, tooltip) else this
         }
-        body(newBuilder)
+        builder(newBuilder)
         newBuilder.buildFuture()
     }
 }
 
-fun RequiredArgumentBuilder<FabricClientCommandSource, *>.suggests(body: SuggestionsBuilder.() -> Unit) {
+inline fun RequiredArgumentBuilder<FabricClientCommandSource, *>.suggests(
+    crossinline builder: SuggestionsBuilder.() -> Unit
+) {
     suggests { context, builder ->
-        body(builder)
+        builder(builder)
         builder.buildFuture()
     }
 }
