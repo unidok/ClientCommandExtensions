@@ -1,4 +1,4 @@
-rootProject.name = "ClientCommandExtensions"
+rootProject.name = "CommandExtensions"
 
 pluginManagement {
     repositories {
